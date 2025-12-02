@@ -1,42 +1,46 @@
-from datetime import datetime
+from datetime import datetime  # Import datetime para sa timestamp
 
-accounts = []
-history = []
+accounts = []  # List to store all accounts
+history = []   # List to store transaction logs
 
+# Function to record every transaction
 def log_transaction(text):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    history.append(f"{timestamp} - {text}")
-    print(f"[LOG] {timestamp} - {text}")
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Get current time
+    history.append(f"{timestamp} - {text}")  # Save log sa history list
+    print(f"[LOG] {timestamp} - {text}")  # Print log para makita agad
 
-# -------------------------------
+# -------------------------------------
 # Create Account
-# -------------------------------
+# -------------------------------------
 def create_account():
-    name = input("Enter account name: ").strip()
-    for acc in accounts:
-        if acc["name"].lower() == name.lower():
+    name = input("Enter account name: ").strip()  # Input account name
+
+    for acc in accounts:  # Check kung existing na pangalan
+        if acc["name"].lower() == name.lower():  # Compare case-insensitive
             print("Account name already exists.\n")
             return
+
+    # Create new account structure
     accounts.append({"name": name, "balance": 0.0, "daily_withdraw": 0.0})
-    log_transaction(f"Created account for {name}")
+    log_transaction(f"Created account for {name}")  # Log creation
     print("Account created successfully!\n")
 
-# -------------------------------
-# Select account
-# -------------------------------
+# -------------------------------------
+# Select an account
+# -------------------------------------
 def choose_account():
-    if not accounts:
+    if not accounts:  # If no accounts exist
         print("No accounts available.\n")
         return None
 
     print("\nAvailable accounts:")
-    for i, acc in enumerate(accounts):
+    for i, acc in enumerate(accounts):  # List all accounts
         print(f"{i+1}. {acc['name']} (Balance: {acc['balance']:.2f})")
 
     try:
-        choice = int(input("Select account: ")) - 1
-        if 0 <= choice < len(accounts):
-            return accounts[choice]
+        choice = int(input("Select account: ")) - 1  # Get selected index
+        if 0 <= choice < len(accounts):  # Check valid range
+            return accounts[choice]  # Return selected account
         else:
             print("Invalid choice!\n")
             return None
@@ -44,39 +48,39 @@ def choose_account():
         print("Invalid input!\n")
         return None
 
-# -------------------------------
-# Deposit
-# -------------------------------
+# -------------------------------------
+# Deposit money
+# -------------------------------------
 def deposit():
-    acc = choose_account()
+    acc = choose_account()  # Let user select account
     if not acc:
         return
 
     try:
-        amount = float(input("Enter deposit amount: "))
-        if amount <= 0:
+        amount = float(input("Enter deposit amount: "))  # Input amount
+        if amount <= 0:  # Negative or zero not allowed
             print("Amount must be positive!\n")
             return
     except:
         print("Invalid input!\n")
         return
 
-    acc["balance"] += amount
-    log_transaction(f"Deposited {amount:.2f} into {acc['name']}")
+    acc["balance"] += amount  # Add amount to balance
+    log_transaction(f"Deposited {amount:.2f} into {acc['name']}")  # Log deposit
     print("Deposit successful!\n")
 
-# -------------------------------
-# Withdraw
-# -------------------------------
+# -------------------------------------
+# Withdraw money
+# -------------------------------------
 def withdraw():
-    acc = choose_account()
+    acc = choose_account()  # Select account
     if not acc:
         return
 
-    DAILY_LIMIT = 5000
+    DAILY_LIMIT = 5000  # Withdrawal daily limit
 
     try:
-        amount = float(input("Enter withdrawal amount: "))
+        amount = float(input("Enter withdrawal amount: "))  # Input amount
         if amount <= 0:
             print("Amount must be positive!\n")
             return
@@ -84,55 +88,55 @@ def withdraw():
         print("Invalid input!\n")
         return
 
-    if amount > acc["balance"] * 0.80:
+    if amount > acc["balance"] * 0.80:  # Fraud check: >80% of balance
         print("⚠ WARNING: FRAUD ALERT — More than 80% of balance!")
 
-    if acc["daily_withdraw"] + amount > DAILY_LIMIT:
+    if acc["daily_withdraw"] + amount > DAILY_LIMIT:  # Check daily limit
         print("❌ Daily limit reached!\n")
         return
 
-    if amount > acc["balance"]:
+    if amount > acc["balance"]:  # Not enough money
         print("❌ Not enough balance!\n")
         return
 
-    acc["balance"] -= amount
-    acc["daily_withdraw"] += amount
-    log_transaction(f"Withdrew {amount:.2f} from {acc['name']}")
+    acc["balance"] -= amount  # Subtract amount
+    acc["daily_withdraw"] += amount  # Add to today's withdrawals
+    log_transaction(f"Withdrew {amount:.2f} from {acc['name']}")  # Log withdrawal
     print("Withdrawal successful!\n")
 
-# -------------------------------
-# Add Interest
-# -------------------------------
+# -------------------------------------
+# Interest calculation
+# -------------------------------------
 def calculate_interest():
-    acc = choose_account()
+    acc = choose_account()  # Select account
     if not acc:
         return
 
-    rate = 0.02
-    interest = acc["balance"] * rate
-    acc["balance"] += interest
+    rate = 0.02  # 2% interest rate
+    interest = acc["balance"] * rate  # Compute interest
+    acc["balance"] += interest  # Add to balance
 
-    log_transaction(f"Interest added to {acc['name']}: {interest:.2f}")
+    log_transaction(f"Interest added to {acc['name']}: {interest:.2f}")  # Log it
     print(f"Interest added: {interest:.2f}\n")
 
-# -------------------------------
-# Show History
-# -------------------------------
+# -------------------------------------
+# Show transaction history
+# -------------------------------------
 def show_history():
-    if not history:
+    if not history:  # If empty
         print("No history available.\n")
         return
 
     print("\n--- TRANSACTION HISTORY ---")
-    for h in history:
+    for h in history:  # Print each log
         print(h)
     print("----------------------------\n")
 
-# -------------------------------
-# MAIN MENU
-# -------------------------------
+# -------------------------------------
+# Main Menu Loop
+# -------------------------------------
 def main():
-    while True:
+    while True:  # Loop until exit
         print("\n===== BANK TRANSACTION SYSTEM =====")
         print("1. Create Account")
         print("2. Deposit")
@@ -142,26 +146,27 @@ def main():
         print("6. View Transaction History")
         print("7. Exit")
 
-        choice = input("Choose an option: ")
+        choice = input("Choose an option: ")  # User choice
 
         if choice == "1":
-            create_account()
+            create_account()  # Create new account
         elif choice == "2":
-            deposit()
+            deposit()          # Deposit money
         elif choice == "3":
-            withdraw()
+            withdraw()         # Withdraw money
         elif choice == "4":
-            acc = choose_account()
+            acc = choose_account()  # Choose account
             if acc:
-                print(f"Current Balance: {acc['balance']:.2f}\n")
+                print(f"Current Balance: {acc['balance']:.2f}\n")  # Show balance
         elif choice == "5":
-            calculate_interest()
+            calculate_interest()  # Add interest
         elif choice == "6":
-            show_history()
+            show_history()        # Show log history
         elif choice == "7":
-            print("Goodbye!")
+            print("Goodbye!")     # Exit
             break
         else:
-            print("Invalid choice.\n")
+            print("Invalid choice.\n")  # Wrong input
 
-main()
+# Program starts here
+main()  # Call main function to start menu
