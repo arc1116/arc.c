@@ -1,0 +1,167 @@
+from datetime import datetime
+
+accounts = []
+history = []
+
+def log_transaction(text):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    history.append(f"{timestamp} - {text}")
+    print(f"[LOG] {timestamp} - {text}")
+
+# -------------------------------
+# Create Account
+# -------------------------------
+def create_account():
+    name = input("Enter account name: ").strip()
+    for acc in accounts:
+        if acc["name"].lower() == name.lower():
+            print("Account name already exists.\n")
+            return
+    accounts.append({"name": name, "balance": 0.0, "daily_withdraw": 0.0})
+    log_transaction(f"Created account for {name}")
+    print("Account created successfully!\n")
+
+# -------------------------------
+# Select account
+# -------------------------------
+def choose_account():
+    if not accounts:
+        print("No accounts available.\n")
+        return None
+
+    print("\nAvailable accounts:")
+    for i, acc in enumerate(accounts):
+        print(f"{i+1}. {acc['name']} (Balance: {acc['balance']:.2f})")
+
+    try:
+        choice = int(input("Select account: ")) - 1
+        if 0 <= choice < len(accounts):
+            return accounts[choice]
+        else:
+            print("Invalid choice!\n")
+            return None
+    except:
+        print("Invalid input!\n")
+        return None
+
+# -------------------------------
+# Deposit
+# -------------------------------
+def deposit():
+    acc = choose_account()
+    if not acc:
+        return
+
+    try:
+        amount = float(input("Enter deposit amount: "))
+        if amount <= 0:
+            print("Amount must be positive!\n")
+            return
+    except:
+        print("Invalid input!\n")
+        return
+
+    acc["balance"] += amount
+    log_transaction(f"Deposited {amount:.2f} into {acc['name']}")
+    print("Deposit successful!\n")
+
+# -------------------------------
+# Withdraw
+# -------------------------------
+def withdraw():
+    acc = choose_account()
+    if not acc:
+        return
+
+    DAILY_LIMIT = 5000
+
+    try:
+        amount = float(input("Enter withdrawal amount: "))
+        if amount <= 0:
+            print("Amount must be positive!\n")
+            return
+    except:
+        print("Invalid input!\n")
+        return
+
+    if amount > acc["balance"] * 0.80:
+        print("⚠ WARNING: FRAUD ALERT — More than 80% of balance!")
+
+    if acc["daily_withdraw"] + amount > DAILY_LIMIT:
+        print("❌ Daily limit reached!\n")
+        return
+
+    if amount > acc["balance"]:
+        print("❌ Not enough balance!\n")
+        return
+
+    acc["balance"] -= amount
+    acc["daily_withdraw"] += amount
+    log_transaction(f"Withdrew {amount:.2f} from {acc['name']}")
+    print("Withdrawal successful!\n")
+
+# -------------------------------
+# Add Interest
+# -------------------------------
+def calculate_interest():
+    acc = choose_account()
+    if not acc:
+        return
+
+    rate = 0.02
+    interest = acc["balance"] * rate
+    acc["balance"] += interest
+
+    log_transaction(f"Interest added to {acc['name']}: {interest:.2f}")
+    print(f"Interest added: {interest:.2f}\n")
+
+# -------------------------------
+# Show History
+# -------------------------------
+def show_history():
+    if not history:
+        print("No history available.\n")
+        return
+
+    print("\n--- TRANSACTION HISTORY ---")
+    for h in history:
+        print(h)
+    print("----------------------------\n")
+
+# -------------------------------
+# MAIN MENU
+# -------------------------------
+def main():
+    while True:
+        print("\n===== BANK TRANSACTION SYSTEM =====")
+        print("1. Create Account")
+        print("2. Deposit")
+        print("3. Withdraw")
+        print("4. Check Balance")
+        print("5. Add Monthly Interest")
+        print("6. View Transaction History")
+        print("7. Exit")
+
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            create_account()
+        elif choice == "2":
+            deposit()
+        elif choice == "3":
+            withdraw()
+        elif choice == "4":
+            acc = choose_account()
+            if acc:
+                print(f"Current Balance: {acc['balance']:.2f}\n")
+        elif choice == "5":
+            calculate_interest()
+        elif choice == "6":
+            show_history()
+        elif choice == "7":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice.\n")
+
+main()
